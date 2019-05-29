@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>图片懒加载+防抖/节流</title>
+	<style type="text/css">
+		img{
+			display: inline-block;
+		}
+	</style>
+</head>
+<body>
+	<div class="imgList">
+        <img src="./images/img0.png" data-mySrc="https://desk-fd.zol-img.com.cn/t_s960x600c5/g5/M00/01/0E/ChMkJlbKwaSIYSnSABHnebgcNiIAALGbgDdj_IAEeeR097.jpg" alt="">
+        <img src="./images/img0.png" data-mySrc="https://desk-fd.zol-img.com.cn/t_s960x600c5/g5/M00/01/0E/ChMkJlbKwaSIYSnSABHnebgcNiIAALGbgDdj_IAEeeR097.jpg" alt="">
+        <img src="./images/img0.png" data-mySrc="https://desk-fd.zol-img.com.cn/t_s960x600c5/g5/M00/01/0E/ChMkJlbKwaSIYSnSABHnebgcNiIAALGbgDdj_IAEeeR097.jpg" alt="">
+        <img src="./images/img0.png" data-mySrc="https://desk-fd.zol-img.com.cn/t_s960x600c5/g5/M00/01/0E/ChMkJlbKwaSIYSnSABHnebgcNiIAALGbgDdj_IAEeeR097.jpg" alt="">
+	</div>
+
+	<script type="text/javascript">
+		var imgList = document.querySelector(".imgList");
+		var len = imgList.children.length;
+		var curimg = 0; //存储图片加载到的位置，避免每次都从第一张图片开始遍历
+
+		//为窗口添加滚动事件
+		//由于滚动事件会频繁触发影响性能，所以选择使用节流
+		window.addEventListener("scroll",throttle(lazyloading));
+		//防抖更加适合于点击事件的防抖，这里也写了防抖，作为参考
+		// window.addEventListener("scroll",debounce(lazyloading));
+		
+		function lazyloading(){
+			//为了兼容，不管有没有 DTD(是否指定了 DOCTYPE)，可以使用如下代码
+			//滚动条滚动过的高度
+			var scrollTop = window.pageYOffset  //用于FF
+                || document.documentElement.scrollTop  
+                || document.body.scrollTop  //在chrome中这个值始终是0！！！
+      		
+      		//当前窗口的高度
+			var windowHeight = window.innerHeight
+    			|| document.documentElement.clientHeight
+    			|| document.body.clientHeight;
+
+    		for(var i=curimg; i<len; i++){
+    			var img=imgList.children[i];
+    			var offsetTop = img.offsetTop;  //元素在页面上的绝对位置
+    			var offsetHeight = img.offsetHeight;
+    			//只加载出现在窗口中的部分，之前之后的都不加载
+    			if(offsetTop+offsetHeight>scrollTop && offsetTop<scrollTop+windowHeight){
+    				//注意：data-*自定义的属性不区分大小写，会全部被转成小写
+    				//在获取时候，如果写的大写字母会报出undefined
+    				img.src=img.dataset.mysrc;
+    				console.log("dizhi",img.src);
+    			}
+
+    			//从第一张开始加载，并记录加载到的位置,全部加载完之后就不会重复加载了。
+				//if(offsetTop<scrollTop+windowHeight){
+    			// 	img.src=img.dataset.mysrc;
+    			// 	curimg=i+1;
+    			// 	console.log("dizhi",img.src);
+    			// }
+    		}
+		}
+		//节流
+		function throttle(fn,interval = 300){
+			let canRun = true;
+			return function(){
+				if(canRun){
+					canRun=false;
+					setTimeout(function(){
+						fn();
+						canRun=true;
+					},interval)
+				}
+			}
+		}
+
+		//防抖更加适合于点击事件，这里也写了防抖，作为参考
+		function debounce(fn,interval=300){
+			let timeout = null;
+			return function (){
+				clearTimeout(timeout);
+				timeout = setTimeout(fn,interval);
+			}
+		}
+	</script>
+</body>
+</html>

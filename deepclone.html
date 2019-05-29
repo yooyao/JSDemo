@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+
+	<script type="text/javascript">
+		var obj1= {
+			a:1,
+			b:'bb',
+			c:[1,2,3,{bb:'bb'},[4,5]],
+			m:{bb:'bb',fn(){console.log("inner m fn")}},
+			f(){
+				console.log("outter f");
+			}
+		}	
+
+		var jsonCope  = JSON.parse(JSON.stringify(obj1));
+		console.log('jsonCope',jsonCope);
+
+		const deepClone = (origin,target)=>{
+			var target = target || {};
+			var typ = '';
+			for( var item in origin){
+				if(origin.hasOwnProperty(item)){
+					typ = typeof origin[item];
+					if( typ === 'object'){
+						// if(Object.prototype.toString.call(origin[item]) === '[object Array]'){
+						target[item] = Array.isArray(origin[item]) ? []:{};
+						target[item]=deepClone(origin[item],target[item]);
+					}else {
+						target[item] = origin[item];
+					}	
+				}
+				
+			}
+
+			return target;
+		}
+
+		var obj2 = deepClone(obj1);
+
+		class Person {
+			constructor(name){
+					this.name = name;
+			}
+			sayName=function (){
+				console.log(this.name);
+				console.log(name);
+
+			}
+		}
+
+		class Student extends Person{
+			constructor(name,age){
+				super(name);
+				this.age = age;
+			}
+		
+			pri = 'this is private'
+			sayAge=()=>{
+				console.log(this.pri)
+			}
+
+
+		}
+
+		var per = new Person('ah');
+		var st = new Student("st",1);
+
+		function PreStu (name,age){
+			Person.call(this,name);
+			this.age = age;
+		}
+
+		PreStu.prototype = new Person();
+		PreStu.prototype.constructor = Person;
+
+
+
+		// //关于构造函数的原型链
+		// //1.由构造函数或者类生成的实例对象
+		// per.__proto__ === Person.prototype;
+		// Person.prototype.__proto__ === Object.prototype;
+		// Student.prototype.__proto__ === Person.prototype;
+		// PreStu.prototype.__proto__ === Person.prototype;
+
+		// //2.每个函数实际上都是一个Function对象
+		// Person.__proto__ === Function.prototype;//true
+		// Person.__proto__.__proto__ === Object.prototype; //原型链的顶端
+		// PreStu.__proto__ === Function.prototype; //true，使用function声明
+		// Student.__proto__ === Person; //使用class extends，等于Person类，true
+
+
+
+	</script>
+</body>
+</html>
+

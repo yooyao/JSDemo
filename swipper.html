@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <style type="text/css">
+        *{
+            padding: 0;
+            margin: 0;
+        }
+
+        .container{
+            position: relative;
+
+            margin:0 auto;
+            width: 480px;
+            height: 270px;
+
+            overflow: hidden;
+        }
+
+        .list{
+            position: absolute;
+            white-space:nowrap;/*使得轮播的图片排成长长的一行*/
+            font-size: 0;
+        }
+
+        img{
+            width: 480px;
+            height: 270px;
+        }
+
+        .nav{
+            position: absolute;
+            bottom: 2px;
+            left: 50%;
+            transform: translate(-50%);
+        }
+
+        .nav li{
+            display: inline-block;
+            /*float: left;*/
+
+            margin-left: 3px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+
+            background: #eee;
+            cursor:pointer;
+
+        }
+
+        .nav li:hover, .nav .on{
+            transform: scale(1.2,1.2);
+            background: orange;
+        }
+
+        .btn{
+            position: absolute;
+            bottom: 50%;
+            
+            width: 100%;
+            font-size: 50px;
+            color: #eee;
+
+            overflow: hidden;
+        }
+
+        .next{
+            float: right;
+            cursor:pointer;
+        }
+
+        .pre{
+            float: left;
+            cursor:pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="list" style="left: -480px">
+            <img src="./images/image5.jpg" alt="">
+            <img src="./images/image1.jpg" alt="">
+            <img src="./images/img0.png" alt="">
+            <!-- <img src="./images/image2.jpg" alt=""> -->
+            <img src="./images/image3.jpg" alt="">
+            <img src="./images/img0.png" alt="">
+            <!-- <img src="./images/image4.jpg" alt=""> -->
+            <img src="./images/image5.jpg" alt="">
+            <img src="./images/image1.jpg" alt="">
+        </div>
+        <ul class="nav">
+            <li class="on"></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+        </ul>
+        <div class="btn">
+            <span class="next">></span>
+            <span class="pre"><</span>
+        </div>
+            
+    </div>
+    <script type="text/javascript" src="./jQuery3.js"></script>
+    <script type="text/javascript">
+        $(function(){
+
+            var i=1,interval=0;
+            $(".container").mouseover(()=>{
+                clearInterval(interval);
+
+            })
+
+            $(".container").mouseleave(()=>{
+                console.log("ahah")
+                interval = setInterval(()=>{
+                    i++;
+                    moveImg(i);
+                },1500);
+
+            })
+
+            //箭头
+            $('.next').click(function(){
+                i++;
+                console.log(i)
+                moveImg(i);
+                 
+            });
+            $('.pre').click(function(){
+                i--;
+                moveImg(i);
+                 
+            });
+
+            //底部圆球列表
+            $('.nav li').click(function(){
+                i=$(this).index()+1;
+                moveImg(i);
+                 
+            });
+
+            // 实现自动播放
+            interval = setInterval(()=>{
+                i++;
+                moveImg(i);
+            },1500);
+
+
+            //实现轮播图拖拽
+            $(".list").on("mousedown",function(e){
+                var list=$(".list");
+                var preX=e.clientX,
+                    disX=0,
+                    sumDis=0;
+                
+                list[0].style.transition = "left 0.1s";
+
+                list.on("mousemove",mouseMove);
+                //jquery的on方法绑定事件是不是对冒泡做了处理？
+                //如果使用document.on("mouseup",mouseUp);在轮播图上出发不了监听事件
+                document.addEventListener("mouseup",mouseUp,false);
+
+                function mouseMove(e){
+                    console.log(list[0].style.transition)
+                    disX=e.clientX-preX;  //负数表示拉下一张，整数表述拉出前一张
+                    sumDis+=disX;     //累加所有的dis
+                    preX=e.clientX;    //重置下一次开始计算的位置
+                    this.style.left=parseInt(this.style.left)+disX+'px';
+
+                    return false;//阻止默认事件
+                }   
+
+                function mouseUp(e){
+                    list[0].style.transition = "left 0.6s";
+
+                    //当松开鼠标的时候，总的移动距离大于显示的图片宽度的一半的时候，就直接过度到下一张图
+                    if(Math.abs(sumDis)>480/2){
+                        i = sumDis<0 ? i+1:i-1;
+                        moveImg(i);
+                    }else{
+                        // list[0].style.left=prePosition;
+                        moveImg(i);
+                    }
+
+                    list.off("mousemove",mouseMove);
+                    document.removeEventListener("mouseup",mouseUp);
+                }
+
+                return false;  //阻止默认的拖动事件，否则当鼠标移动到轮播图之外的位置后，会无法触发document上的mouseup事件
+
+            });
+
+            //切换下一张图片
+            // i的作用：决定下一张图片是谁————也就是说ul的left是多少，这里的i直接取用的全局的i，因为在函数内部会对i进行修改。
+            function moveImg(){
+                var list=$('.list')[0];
+            
+                //实现懒加载
+                var imgi=list.children[i];
+                if(imgi.src.indexOf("img0.png") != -1){
+                    console.log("enter")
+                    switch (i){
+                        case 2:
+                            imgi.src="https://desk-fd.zol-img.com.cn/t_s960x600c5/g5/M00/01/0E/ChMkJlbKwaSIYSnSABHnebgcNiIAALGbgDdj_IAEeeR097.jpg";
+                            break;
+
+                        case 4:
+                            imgi.src="https://desk-fd.zol-img.com.cn/t_s960x600c5/g5/M00/01/0E/ChMkJlbKwaSIYSnSABHnebgcNiIAALGbgDdj_IAEeeR097.jpg";
+                            break;                        
+                    }
+                }
+
+                list.style.transition = "left 0.6s";
+
+                list.style.left = -480*i+'px';
+
+                //为了实现无缝轮播，需要对首尾的两张进行判断处理，障眼法，假装无缝
+                if (i==6) {
+                    i=1;
+                    //实现无缝的关键：设置setTimeout，并且触发的时间和transition的动画时间需要一致
+                    //如果说不使用setTimeout，if中直接立即将transition属性设置成空，其实还是会执行动画过度的，并不能起到预想的清除过渡效果
+                    //因为在你清除这个效果之前，transition就开始触发了，涉及到一系列属性的迅速变化
+                    setTimeout(function () {
+                        list.style.transition = "";
+                        $('.list').css({left:"-480px"});//jquery中的方法
+                        // list.style.left = '-480px'; //这样写是一样的
+                    }, 600);
+                }else if(i==0){
+                    i=5;
+                    setTimeout(function () {
+                        list.style.transition = "";
+                        list.style.left = -480*5+'px';
+                    }, 600);
+                }
+
+                $('.nav li').eq(i-1).addClass('on').siblings().removeClass('on');
+            }
+        })
+    </script>
+</body>
+</html>

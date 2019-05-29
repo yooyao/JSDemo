@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>打印序号。闭包与事件委托</title>
+	<style type="text/css">
+		#list li{
+			cursor: pointer;
+		}
+	</style>
+</head>
+<body>
+		
+	<button>1</button>
+	<button>2</button>
+	<button>3</button>
+	<button>4</button>
+	<button>5</button>
+	<script>
+		//利用闭包，在每一个按钮上循环绑定
+		//缺点是，对于新增加的按钮需要重新绑定，并且太多的事件绑定影响性能
+		var arr = document.getElementsByTagName("button");
+		for( var i=0; i<5; i++ ){
+			(function(n){
+				arr[n].onclick = function(){
+					alert(n+1);
+				}
+			})(i);
+		}
+	</script>
+
+	<ul id="list">
+		<li>序号1</li>
+		<li>序号2</li>
+		<li>序号3</li>
+		<li>序号4</li>
+		<li>序号5</li>
+		<li>序号6</li>
+	</ul>
+	<script type="text/javascript">
+		//利用事件委托
+	var ul = document.getElementById('list');
+	var li = ul.getElementsByTagName('li');
+	ul.onclick = function(e){
+		var e = e || window.event, target = e.target || e.srcElement;
+			for(var s in li){
+				//循环整个ul类数组，进行比对，找到点击对象的序号
+				if(target == li[s]){
+				console.log(li[s])
+				console.log(s)
+				s = parseInt(s)+1;
+				alert(s);
+				break;
+			}
+		}
+	}
+</script>
+</body>
+
+</html>

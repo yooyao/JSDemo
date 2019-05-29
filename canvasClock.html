@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>canvas and css动画</title>
+	<meta charset="utf-8">
+	<style type="text/css">
+		*{
+			margin: 0;			
+		}
+		#bg{
+/*			width: 200px;
+			height: 200px;*/
+ 			/*border: 1px solid black;*/
+		}
+
+		#hands{
+			position: absolute;
+			left:0;
+		}
+	</style>
+</head>
+<body>
+	<canvas id="bg" width="200" height="200"> 您的浏览器不支持canvas标签</canvas>
+	<canvas id="hands" width="200" height="200"> 您的浏览器不支持canvas标签</canvas>
+
+	<div></div>
+	<script type="text/javascript">
+		var width=200, height=200;
+		var bg = document.querySelector("#bg");
+		var hands = document.querySelector("#hands");
+
+		var dot = {x:width/2,y:height/2,radius:6};
+		var radius = 100; //圆半径
+		if(bg.getContext){
+			var bgctx = bg.getContext("2d");
+			var hansCtx = hands.getContext("2d");
+
+			bgctx.fillStyle = "rgba(255,192,203)";
+			bgctx.strokeStyle = "grey";
+
+			bgctx.beginPath();
+			bgctx.lineWidth = 5;
+			bgctx.arc(dot.x,dot.y,radius,0,Math.PI*2);
+			bgctx.stroke();
+
+
+			//中间的原点
+			bgctx.beginPath();
+			bgctx.arc(dot.x,dot.y,dot.radius,0,Math.PI*2);
+			bgctx.fill();
+
+			//刻度
+			bgctx.strokeStyle = "black";
+			for(var i=0, angle=0; i<60; i++){
+				if(i%5 == 0){
+					bgctx.lineWidth = 5;
+					var len = 12;
+        			bgctx.strokeStyle = '#000';
+				}else{
+					bgctx.lineWidth = 2;
+			        len = 6;
+			        bgctx.strokeStyle = '#999';
+				}
+
+				//通过角度计算得到需要在哪里描绘刻度点
+				bgctx.beginPath();
+				bgctx.moveTo(
+					dot.x+radius*Math.cos(angle),
+					dot.y+radius*Math.sin(angle)
+				);
+				bgctx.lineTo(
+					dot.x+(radius-len)*Math.cos(angle),
+					dot.y+(radius-len)*Math.sin(angle)	
+				)
+				bgctx.stroke();
+				bgctx.closePath();
+
+				angle += Math.PI/30;
+			}
+
+			handsUpdata(hansCtx);
+			setInterval(handsUpdata,1000,hansCtx)
+		}
+
+		//表针，需要实时刷新
+		function handsUpdata(hansCtx){
+			//清除原来的表针
+			hansCtx.clearRect(0,0,width,height);
+			var [hours,minutes,seconds] = getTime();
+			drawHand(hours/12,5,40,"black");
+			drawHand(minutes/60,3,50,"black");
+			drawHand(seconds/60,1,60,"black");
+
+			//获取当前时间
+			function getTime(){
+				var time = new Date();
+				var hour = time.getHours();
+				var minutes = time.getMinutes();
+				var seconds = time.getSeconds();
+				//24小时制转成12小时制
+				hour = hour<12 ? hour : hour-12;
+				hour += minutes/60;
+				return [hour,minutes,seconds];
+			}
+
+			//绘制表针
+			function drawHand(time,lineWidth,length,color){
+				//需要保存当前状态，然后回退，这样保证每一次表针的描绘的计算正确
+				hansCtx.save();
+				//变化原点
+				hansCtx.translate(width/2,height/2);
+				//旋转特定角度
+				hansCtx.rotate(time*Math.PI*2); 
+				hansCtx.lineWidth=lineWidth;
+	            hansCtx.strokeStyle=color;
+	            hansCtx.beginPath();
+	            hansCtx.moveTo(0,-dot.radius);
+	            hansCtx.lineTo(0,-length);
+	            hansCtx.stroke();
+	            hansCtx.closePath();
+				//会退到旋转前的画布和原点位置
+	            hansCtx.restore();
+			}
+		}
+
+
+	</script>
+</body>
+
+
+</html>

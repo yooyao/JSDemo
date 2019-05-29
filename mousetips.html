@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>显示提示</title>
+	<meta charset="utf-8">
+	<style type="text/css">
+
+	</style>
+</head>
+<body>
+	<button>move to here</button>
+	<a href="">here</a>
+
+	<div>
+		this is a tip
+	</div>
+
+	<script type="text/javascript">
+		var btn = document.querySelector("button");
+		var a = document.querySelector("a");
+		var div = document.querySelector("div");
+
+		// div.style.display = "none";
+
+		btn.addEventListener("mouseenter",(event)=>{
+			div.style.display = "block";
+			console.log("over")
+
+
+		})
+					document.onmouseleave=(e)=>{
+				console.log("leave")
+				div.style.display = "none";
+			}
+	</script>
+
+</body>
+</html>

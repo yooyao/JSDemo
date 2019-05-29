@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>demo</title>
+		<style type="text/css">
+			#mouseMoveDiv{
+				position:absolute;
+				left: 0;
+				top: 50px;
+
+				width: 100px;
+				height: 100px;
+				background-color: green;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div id ="mouseMoveDiv" style = "background-color: blue;"></div>
+
+		<input type="text" id = "myInput" value="请输入用户名" style = "color: #999" onfocus = "if(this.value=='请输入用户名'){this.value='';this.style.color='#424242'}" onblur="if(this.value==''){this.value='请输入用户名';this.style.color = '#999'}" >
+
+		<script type="text/javascript" >
+
+			var ul = document.getElementById('myList');
+			var li = document.getElementsByTagName('li');
+			
+			//封装的事件处理函数
+			function addEvent(elem,type,handle){
+				if(elem.addEventListener){
+					elem.addEventListener(type,handle,false);
+				}else if(elem.attachEvent){
+					elem.attachevent("on"+type,function(){
+						handle.call(elem);
+					})
+				}else{
+					elem["on"+type]=handle;
+				}
+			} 
+
+			//封装事件处理函数的移除
+			function removeEvent(elem,type,handle){
+				if(elem.removeEventListener){
+					elem.removeEventListener(type,handle,false);
+				}else if(elem.detachEvent){
+					elem.detachEvent("on"+type,handle);//TODO:有问题，应该不能正常被解除
+				}else{
+					elem['on'+type]=null;
+				}
+			}
+
+			//拖拽方块
+			function drage(elem){
+				var elemStyle = document.defaultView.getComputedStyle(elem);   //取得style表中的样式
+				var disX,
+					disY;
+				var clientHeight=document.documentElement.clientHeight;
+				var clientWidth=document.documentElement.clientWidth;
+
+				addEvent(elem,"mousedown",function (){
+					console.log(event.clientX)
+					disX = event.pageX-parseInt(elemStyle.left);
+					disY = event.pageY-parseInt(elemStyle.top);
+
+					addEvent(document,"mousemove", mouseMove)
+					//当鼠标移出到document之外后，需要取消拖拽事件，这个是时候需要使用mouseout事件，因为会冒泡，使用mouseleave事件是不能达到效果的
+					addEvent(document,"mouseout", mouseUp)
+					
+					addEvent(document,"mouseup", mouseUp)
+					
+					return false;
+				},false);
+
+				function mouseMove(e){
+					var event = e || window.event;
+					var pageX=event.pageX;
+					var pageY=event.pageY;
+					//不允许无限往下拖动，以拉长页面
+					if(pageX<clientWidth){
+						elem.style.left = pageX -disX + 'px';
+					}
+					if(pageY<clientHeight){
+						elem.style.top = pageY -disY + 'px';
+					}
+
+				}
+
+				function mouseUp(e){
+					var event = e || window.event;
+					console.log(";eave  up")
+					removeEvent(document,"mousemove",mouseMove)
+				}
+			}
+					
+			var mouseMoveDiv = document.getElementById("mouseMoveDiv");
+			drage(mouseMoveDiv);
+
+			document.write('<p>',(new Date()).toString()+'</p>');
+
+			//统计input框的输入字符数
+			var inp = document.getElementById("myInput");
+			inp.addEventListener("keypress",inpKeyPress)
+			function inpKeyPress(event){
+				var count=countBytes(inp.value);
+				console.log('输入字符数',inp.value.length,count)
+				// console.log(event.charCode)  //获取编码
+			}
+
+			//textInput只在有输入的时候触发，删除操作不会触发
+			inp.addEventListener("textInput",textInput)
+			function textInput(event){
+				console.log('输入字符',event.data)  //获取这个事件一次触发后所输入的字符
+				//console.log(event.inputMethod)  //只有IE才支持
+			}
+
+			/**字符统计**/
+			function countBytes(target){
+				var count = 0;
+				for(var i = 0; i< target.length ; i++){
+					if(target.charCodeAt(i) > 255){
+						count++;   //汉字算两个字符
+					}
+					count++;
+				}
+				console.log("countBytes",count)
+				return count;
+			}
+
+
+			//取消默认右键菜单事件
+			document.addEventListener("contextmenu",function(){
+				event.preventDefault();
+				console.log('contextmenu')
+			});
+
+
+			//阻止页面的刷新关闭，但是没有显示提示框中的
+			// window.addEventListener("beforeunload",function(event){
+			// 	console.log('sss')
+
+			// 	var message = "I will miss you";
+			// 	event.returnValue=message;
+			// 	return message;
+			// });
+
+		</script>
+	</body>
+</html>
