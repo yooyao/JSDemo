@@ -161,12 +161,12 @@
 
                 list.on("mousemove",mouseMove);
                 //jquery的on方法绑定事件是不是对冒泡做了处理？
-                //如果使用document.on("mouseup",mouseUp);在轮播图上出发不了监听事件
+                //如果使用document.on("mouseup",mouseUp);在轮播图上触发不了监听事件
                 document.addEventListener("mouseup",mouseUp,false);
 
                 function mouseMove(e){
                     console.log(list[0].style.transition)
-                    disX=e.clientX-preX;  //负数表示拉下一张，整数表述拉出前一张
+                    disX=e.clientX-preX;  //负数表示拉下一张，正数表示拉出前一张
                     sumDis+=disX;     //累加所有的dis
                     preX=e.clientX;    //重置下一次开始计算的位置
                     this.style.left=parseInt(this.style.left)+disX+'px';
@@ -201,6 +201,7 @@
             
                 //实现懒加载
                 var imgi=list.children[i];
+                //img0.png表示放置了本地的默认图片占位显示
                 if(imgi.src.indexOf("img0.png") != -1){
                     console.log("enter")
                     switch (i){
@@ -213,7 +214,7 @@
                             break;                        
                     }
                 }
-
+                //transition 对left属性的变化制作动画效果
                 list.style.transition = "left 0.6s";
 
                 list.style.left = -480*i+'px';
@@ -221,9 +222,9 @@
                 //为了实现无缝轮播，需要对首尾的两张进行判断处理，障眼法，假装无缝
                 if (i==6) {
                     i=1;
-                    //实现无缝的关键：设置setTimeout，并且触发的时间和transition的动画时间需要一致
+                    //实现无缝的关键：设置setTimeout，并且触发的时间和transition的动画时间需要一致，障眼法
                     //如果说不使用setTimeout，if中直接立即将transition属性设置成空，其实还是会执行动画过度的，并不能起到预想的清除过渡效果
-                    //因为在你清除这个效果之前，transition就开始触发了，涉及到一系列属性的迅速变化
+                    //因为在你清除这个效果之前，由于需要先跳到连续的下一张图片，此时transition就开始触发了，再触发动画的过程中继续修改left，并不会阻止动画的继续，涉及到一系列属性的迅速变化
                     setTimeout(function () {
                         list.style.transition = "";
                         $('.list').css({left:"-480px"});//jquery中的方法
