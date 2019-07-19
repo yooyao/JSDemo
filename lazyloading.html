@@ -44,22 +44,22 @@
     			var offsetTop = img.offsetTop;  //元素在页面上的绝对位置
     			var offsetHeight = img.offsetHeight;
     			//只加载出现在窗口中的部分，之前之后的都不加载
-    			if(offsetTop+offsetHeight>scrollTop && offsetTop<scrollTop+windowHeight){
-    				//注意：data-*自定义的属性不区分大小写，会全部被转成小写
-    				//在获取时候，如果写的大写字母会报出undefined
-    				img.src=img.dataset.mysrc;
-    				console.log("dizhi",img.src);
-    			}
+//     			if(offsetTop+offsetHeight>scrollTop && offsetTop<scrollTop+windowHeight){
+//     				//注意：data-*自定义的属性不区分大小写，会全部被转成小写
+//     				//在获取时候，如果写的大写字母会报出undefined
+//     				img.src=img.dataset.mysrc;
+//     				console.log("dizhi",img.src);
+//     			}
 
     			//从第一张开始加载，并记录加载到的位置,全部加载完之后就不会重复加载了。
-				//if(offsetTop<scrollTop+windowHeight){
-    			// 	img.src=img.dataset.mysrc;
-    			// 	curimg=i+1;
-    			// 	console.log("dizhi",img.src);
-    			// }
+			if(offsetTop<scrollTop+windowHeight){
+    				img.src=img.dataset.mysrc;
+    				curimg=i+1;
+    				console.log("dizhi",img.src);
+    			}
     		}
 		}
-		//节流
+		//节流，利用了闭包
 		function throttle(fn,interval = 300){
 			let canRun = true;
 			return function(){
